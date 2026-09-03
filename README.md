@@ -1,11 +1,13 @@
 # ⚡ PowerHub - KDE Plasma 6 Widget
 
 <p align="center">
-  <img src="contents/icons/screenshot1.png" alt="PowerHub Cover" width="100%">
+  <img src="contents/icons/powerhub-icon.png" alt="PowerHub Logo" width="250">
 </p>
 
 <p align="center">
-  <a href="https://www.buymeacoffee.com/merchin"><img src="https://img.shields.io/badge/Buy_Me_A_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me A Coffee"></a>
+  <a href="[https://www.buymeacoffee.com/merchin](https://www.buymeacoffee.com/merchin)">
+    <img src="[https://img.shields.io/badge/Buy_Me_A_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black](https://img.shields.io/badge/Buy_Me_A_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)" alt="Buy Me A Coffee">
+  </a>
 </p>
 
 Manage all your devices, power profiles, and sleep status from a single, elegant point on your KDE Plasma 6 desktop. Designed by **MerchiN Studios**.
@@ -37,6 +39,7 @@ PowerHub speaks your language! The widget is fully localized and dynamically ada
   <summary><b>🖼️ Click to expand and view all widget states and settings</b></summary>
   <br>
   <p align="center">
+    <img src="contents/icons/screenshot1.png" width="45%" style="margin: 5px;">
     <img src="contents/icons/screenshot2.png" width="45%" style="margin: 5px;">
     <img src="contents/icons/screenshot3.png" width="45%" style="margin: 5px;">
     <img src="contents/icons/screenshot4.png" width="45%" style="margin: 5px;">
@@ -64,16 +67,21 @@ PowerHub dynamically adapts to your system, utilizing the following base package
 1. Clone or download this repository.
 2. Open a terminal inside the downloaded folder.
 3. Run the installation script:
-> chmod +x install.sh
-> ./install.sh
-
+```bash
+chmod +x install.sh
+./install.sh
+```
 4. Restart your Plasma shell (or log out and log in):
-> plasmashell --replace &
+```bash
+plasmashell --replace &
+```
 
 ### Uninstallation
 To completely remove the widget and its language configurations, simply run:
-> chmod +x uninstall.sh
-> ./uninstall.sh
+```bash
+chmod +x uninstall.sh
+./uninstall.sh
+```
 
 ## ❤️ Support
 If you enjoy this widget and want to support my late-night open-source development sessions, consider buying me a coffee! 
