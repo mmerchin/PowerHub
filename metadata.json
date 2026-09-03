@@ -13,7 +13,7 @@
         "Description[fr]": "Gérez tous vos appareils, profils d'alimentation et l'état de veille depuis un seul point.",
         "Description[ru]": "Управляйте всеми вашими устройствами, профилями питания и спящим режимом из одной точки.",
         "Description[zh_CN]": "从一个控制点管理您的所有设备、电源配置文件和睡眠状态。",
-        "Icon": "preferences-system-power",
+        "Icon": "contents/icons/powerhub-icon.png",
         "Id": "com.merchin.powerhub",
         "License": "GPL-3.0-or-later",
         "Name": "PowerHub",
