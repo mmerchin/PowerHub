@@ -5,9 +5,7 @@
 </p>
 
 <p align="center">
-  <a href="[https://www.buymeacoffee.com/merchin](https://www.buymeacoffee.com/merchin)">
-    <img src="[https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)" alt="Buy Me A Coffee" width="220">
-  </a>
+  <a href="https://www.buymeacoffee.com/merchin"><img src="https://img.shields.io/badge/Buy_Me_A_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me A Coffee"></a>
 </p>
 
 Manage all your devices, power profiles, and sleep status from a single, elegant point on your KDE Plasma 6 desktop. Designed by **MerchiN Studios**.
