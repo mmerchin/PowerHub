@@ -1,27 +1,21 @@
 #!/bin/bash
 
-echo "Installing PowerHub KDE Plasma Widget..."
+DIR="$HOME/.local/share/plasma/plasmoids/com.merchin.powerhub"
+ICON_DIR="$HOME/.local/share/icons"
 
-TGT="$HOME/.local/share/plasma/plasmoids/com.merchin.powerhub"
-SYS_LOC_DIR="$HOME/.local/share/locale"
+echo "PowerHub kuruluyor..."
 
-mkdir -p "$TGT"
-cp -r ./* "$TGT/"
-rm -f "$TGT/install.sh" "$TGT/uninstall.sh" "$TGT/README.md"
+# 1. Eski sürümü temizle ve klasörü oluştur
+rm -rf "$DIR"
+mkdir -p "$DIR"
 
-for lang in tr en de fr ru zh_CN es pt_BR ja; do
-    if [ -d "$TGT/contents/locale/$lang/LC_MESSAGES" ]; then
-        mkdir -p "$SYS_LOC_DIR/$lang/LC_MESSAGES"
-        ln -sf "$TGT/contents/locale/$lang/LC_MESSAGES/plasma_applet_com.merchin.powerhub.mo" "$SYS_LOC_DIR/$lang/LC_MESSAGES/plasma_applet_com.merchin.powerhub.mo"
-        ln -sf "$TGT/contents/locale/$lang/LC_MESSAGES/com.merchin.powerhub.mo" "$SYS_LOC_DIR/$lang/LC_MESSAGES/com.merchin.powerhub.mo"
-    fi
-done
+# 2. Proje dosyalarını kopyala
+cp -r contents "$DIR/"
+cp metadata.json "$DIR/"
 
-if command -v kbuildsycoca6 &> /dev/null; then
-    kbuildsycoca6 --noincremental &> /dev/null
-fi
+# 3. İkonu KDE'nin bulabilmesi için sistem ikon klasörüne kopyala
+mkdir -p "$ICON_DIR"
+cp contents/icons/powerhub-icon.png "$ICON_DIR/powerhub-icon.png"
 
-echo "----------------------------------------"
-echo "PowerHub successfully installed!"
-echo "Please restart your Plasma shell (plasmashell --replace &) to add the widget to your panel."
-echo "----------------------------------------"
+echo "Kurulum tamamlandı!"
+echo "Lütfen Plasma'yı yeniden başlatın: plasmashell --replace &"
