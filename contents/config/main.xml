@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
+      http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
+  <kcfgfile name=""/>
+
+  <group name="General">
+    <entry name="panelIconWidth" type="Int"><default>50</default></entry>
+    <entry name="panelIconRadius" type="Int"><default>4</default></entry>
+    <entry name="panelLeftMargin" type="Int"><default>2</default></entry>
+    <entry name="panelRightMargin" type="Int"><default>2</default></entry>
+    <entry name="useAutoFontSize" type="bool"><default>true</default></entry>
+    <entry name="customFontSize" type="Int"><default>13</default></entry>
+    <entry name="profileDisplayStyle" type="Int"><default>1</default></entry>
+    <entry name="chargingHighlightColor" type="String"><default>#f1c40f</default></entry>
+    <entry name="useAutoTextColor" type="bool"><default>true</default></entry>
+    <entry name="customTextColor" type="String"><default>#ffffff</default></entry>
+    <entry name="useAutoProfileColors" type="bool"><default>true</default></entry>
+    <entry name="customEcoColor" type="String"><default>#87b07c</default></entry>
+    <entry name="customBalancedColor" type="String"><default>#ffffff</default></entry>
+    <entry name="customPerformanceColor" type="String"><default>#3498db</default></entry>
+    <entry name="customEcoTextColor" type="String"><default>#ffffff</default></entry>
+    <entry name="customBalancedTextColor" type="String"><default>#000000</default></entry>
+    <entry name="customPerformanceTextColor" type="String"><default>#ffffff</default></entry>
+    <entry name="customEcoChargingColor" type="String"><default>#f6e58d</default></entry>
+    <entry name="customBalancedChargingColor" type="String"><default>#f6e58d</default></entry>
+    <entry name="customPerformanceChargingColor" type="String"><default>#f6e58d</default></entry>
+
+    <entry name="showMainBattery" type="bool"><default>true</default></entry>
+    <entry name="showPowerProfile" type="bool"><default>true</default></entry>
+    <entry name="showSleepInhibitor" type="bool"><default>true</default></entry>
+    <entry name="smartSortDevices" type="bool"><default>false</default></entry>
+    <entry name="showDeviceSerials" type="bool"><default>false</default></entry>
+
+    <entry name="deviceIconMap" type="String"><default>{}</default></entry>
+    <entry name="knownDevices" type="String"><default>MainComputer</default></entry>
+  </group>
+</kcfg>
