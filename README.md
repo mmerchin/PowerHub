@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <a href="[https://www.buymeacoffee.com/mmerchin](https://www.buymeacoffee.com/mmerchin)">
+  <a href="[https://www.buymeacoffee.com/merchin](https://www.buymeacoffee.com/merchin)">
     <img src="[https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)" alt="Buy Me A Coffee" width="220">
   </a>
 </p>
@@ -80,4 +80,4 @@ To completely remove the widget and its language configurations, simply run:
 ## ❤️ Support
 If you enjoy this widget and want to support my late-night open-source development sessions, consider buying me a coffee! 
 
-[![Buy Me A Coffee](https://img.shields.io/badge/Buy_Me_A_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/mmerchin)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy_Me_A_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/merchin)
