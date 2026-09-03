@@ -5,7 +5,9 @@
 </p>
 
 <p align="center">
-  <a href="[https://www.buymeacoffee.com/mmerchin](https://www.buymeacoffee.com/mmerchin)" target="_blank"><img src="[https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)" alt="Buy Me A Coffee" style="height: 50px !important;width: 217px !important;" ></a>
+  <a href="[https://www.buymeacoffee.com/mmerchin](https://www.buymeacoffee.com/mmerchin)">
+    <img src="[https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)" alt="Buy Me A Coffee" width="220">
+  </a>
 </p>
 
 Manage all your devices, power profiles, and sleep status from a single, elegant point on your KDE Plasma 6 desktop. Designed by **MerchiN Studios**.
@@ -66,6 +68,7 @@ PowerHub dynamically adapts to your system, utilizing the following base package
 3. Run the installation script:
 > chmod +x install.sh
 > ./install.sh
+
 4. Restart your Plasma shell (or log out and log in):
 > plasmashell --replace &
 
@@ -77,4 +80,4 @@ To completely remove the widget and its language configurations, simply run:
 ## ❤️ Support
 If you enjoy this widget and want to support my late-night open-source development sessions, consider buying me a coffee! 
 
-[![Support Merchin](https://img.shields.io/badge/Support-Merchin-blue?style=for-the-badge&logo=github)](https://github.com/mmerchin)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy_Me_A_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/mmerchin)
