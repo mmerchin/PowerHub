@@ -1,49 +1,80 @@
 # ⚡ PowerHub - KDE Plasma 6 Widget
 
-<a href="https://buymeacoffee.com/merchin" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
+<p align="center">
+  <img src="contents/icons/screenshot1.png" alt="PowerHub Cover" width="100%">
+</p>
 
-Manage all your devices, power profiles, and sleep status from a single, elegant point on your KDE Plasma 6 desktop. Designed by [MerchiN Studios](https://buymeacoffee.com/merchin).
+<p align="center">
+  <a href="[https://www.buymeacoffee.com/mmerchin](https://www.buymeacoffee.com/mmerchin)" target="_blank"><img src="[https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)" alt="Buy Me A Coffee" style="height: 50px !important;width: 217px !important;" ></a>
+</p>
 
-![PowerHub Screenshot](contents/icons/battery-monitor.png) *(You can replace this image path with a real screenshot of the widget later)*
+Manage all your devices, power profiles, and sleep status from a single, elegant point on your KDE Plasma 6 desktop. Designed by **MerchiN Studios**.
 
 ## ✨ Features
-* **🔋 Universal Device Monitoring:** Keep track of your Laptop, Phone (KDE Connect), Mouse, Keyboard, Gamepads, and more.
-* **🧠 Smart Sorting & Simplification:** Dynamically hides disconnected devices and sorts them by lowest charge first.
-* **🎨 Custom Visual Signatures:** Assign custom icons or image files to your specific devices.
-* **🚀 Power Profile Manager:** Seamlessly switch between Power Save, Balanced, and Performance modes (Supports both `power-profiles-daemon` and `tlp`).
-* **🌙 Sleep Inhibitor Control:** Manually block the system from sleeping or locking, and see exactly which background apps are preventing sleep (Supports both `systemd-inhibit` and `kde-inhibit`).
-* **🌍 Multi-Language Support:** Fully localized in English, Turkish, German, French, Spanish, Portuguese (BR), Russian, Chinese (Simplified), and Japanese.
 
-## 📦 Dependencies
-PowerHub dynamically adapts to your system, but utilizes the following base packages depending on your Linux distribution:
+* **📱 Universal Device Monitoring:** Keep track of your Laptop, Phone (KDE Connect), Mouse, Keyboard, Gamepads, and more in one unified view.
+* **🧹 Smart Sorting & Simplification:** Dynamically hides disconnected devices and sorts them intelligently by lowest charge first.
+* **🎨 Custom Visual Signatures:** Assign custom icons or specific device images to match your physical hardware.
+* **⚡ Power Profile Manager:** Seamlessly switch between Power Save, Balanced, and Performance modes directly from the widget.
+* **🌙 Sleep Inhibitor Control:** Manually block the system from sleeping or locking, and see exactly which background apps are currently preventing sleep.
+
+## 🌍 True Multi-Language Support
+
+PowerHub speaks your language! The widget is fully localized and dynamically adapts to your system language. Currently supported languages include:
+* 🇬🇧 English
+* 🇹🇷 Turkish (Türkçe)
+* 🇩🇪 German (Deutsch)
+* 🇫🇷 French (Français)
+* 🇪🇸 Spanish (Español)
+* 🇧🇷 Portuguese (Português - BR)
+* 🇷🇺 Russian (Русский)
+* 🇨🇳 Chinese (Simplified - 简体中文)
+* 🇯🇵 Japanese (日本語)
+
+## 📸 Screenshots Gallery
+
+<details>
+  <summary><b>🖼️ Click to expand and view all widget states and settings</b></summary>
+  <br>
+  <p align="center">
+    <img src="contents/icons/screenshot2.png" width="45%" style="margin: 5px;">
+    <img src="contents/icons/screenshot3.png" width="45%" style="margin: 5px;">
+    <img src="contents/icons/screenshot4.png" width="45%" style="margin: 5px;">
+    <img src="contents/icons/screenshot5.png" width="45%" style="margin: 5px;">
+    <img src="contents/icons/screenshot6.png" width="45%" style="margin: 5px;">
+    <img src="contents/icons/screenshot7.png" width="45%" style="margin: 5px;">
+    <img src="contents/icons/screenshot8.png" width="45%" style="margin: 5px;">
+    <img src="contents/icons/screenshot9.png" width="45%" style="margin: 5px;">
+    <img src="contents/icons/screenshot10.png" width="45%" style="margin: 5px;">
+  </p>
+</details>
+
+## 🛠️ Dependencies
+
+PowerHub dynamically adapts to your system, utilizing the following base packages depending on your Linux distribution:
+
 * `upower` - For reading battery levels (pre-installed on almost all distros).
 * `qdbus` (or `qdbus6` / `qdbus-qt6`) - For tracking KDE Connect devices.
 * `power-profiles-daemon` or `tlp` - For managing power profiles.
 * `systemd` or `kde-inhibit` - For the Sleep Inhibitor module.
 
-## 🛠️ Installation
+## 🚀 Installation
 
 ### Quick Install
 1. Clone or download this repository.
 2. Open a terminal inside the downloaded folder.
 3. Run the installation script:
-```bash
-chmod +x install.sh
-./install.sh
-```
-4. Restart your Plasma shell (or log out and log in).
-```bash
-plasmashell --replace &
-```
+> chmod +x install.sh
+> ./install.sh
+4. Restart your Plasma shell (or log out and log in):
+> plasmashell --replace &
 
 ### Uninstallation
 To completely remove the widget and its language configurations, simply run:
-```bash
-chmod +x uninstall.sh
-./uninstall.sh
-```
+> chmod +x uninstall.sh
+> ./uninstall.sh
 
 ## ❤️ Support
-If you enjoy this widget and want to support my late-night open-source development sessions, consider buying me a coffee!
+If you enjoy this widget and want to support my late-night open-source development sessions, consider buying me a coffee! 
 
-<a href="https://buymeacoffee.com/merchin" target="_blank">☕ Support MerchiN</a>
+[![Support Merchin](https://img.shields.io/badge/Support-Merchin-blue?style=for-the-badge&logo=github)](https://github.com/mmerchin)
