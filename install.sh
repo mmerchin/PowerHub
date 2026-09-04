@@ -1,25 +1,32 @@
 #!/bin/bash
 
-DIR="$HOME/.local/share/plasma/plasmoids/com.merchin.powerhub"
+# Değişken tanımları
+PLUGIN_DIR="$HOME/.local/share/plasma/plasmoids/com.merchin.powerhub"
 ICON_DIR="$HOME/.local/share/icons/hicolor/scalable/apps"
+SOURCE_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-echo "PowerHub kuruluyor..."
+echo "Eski hatalı kalıntılar ve önbellekler temizleniyor..."
+rm -rf "$PLUGIN_DIR"
+rm -rf "$HOME/.cache/plasma*"
+rm -rf "$HOME/.cache/kpackage*"
 
-# 1. Eski sürümü temizle ve klasörü oluştur
-rm -rf "$DIR"
-mkdir -p "$DIR"
-
-# 2. Proje dosyalarını kopyala
-cp -r contents "$DIR/"
-cp metadata.json "$DIR/"
-
-# 3. İkonu KDE'nin her boyutta (Hakkında menüsü dahil) okuyabilmesi için scalable klasörüne kopyala
+echo "Özel SVG ikon sistem scalable dizinine kopyalanıyor..."
 mkdir -p "$ICON_DIR"
-cp contents/icons/powerhub-icon.png "$ICON_DIR/powerhub-icon.png"
+cp "$SOURCE_DIR/contents/icons/powerhub-icon.svg" "$ICON_DIR/powerhub-icon.svg"
 
-# 4. KDE ikon önbelleğini yenile
-touch "$HOME/.local/share/icons/hicolor"
+echo "PowerHub dosyaları doğrudan eklenti dizinine kopyalanıyor..."
+mkdir -p "$PLUGIN_DIR"
+cp -r "$SOURCE_DIR/contents" "$PLUGIN_DIR/"
+cp "$SOURCE_DIR/metadata.json" "$PLUGIN_DIR/"
+
+echo "Plasma servis yöneticisine kaydediliyor..."
+kpackagetool6 -t Plasma/Applet --upgrade "$SOURCE_DIR" 2>/dev/null || kpackagetool6 -t Plasma/Applet --install "$SOURCE_DIR" 2>/dev/null
+
+echo "İzinler ayarlanıyor..."
+chmod -R u+rwX "$PLUGIN_DIR"
+
+echo "KDE sistem önbelleği yenileniyor..."
+gtk-update-icon-cache -f -t "$HOME/.local/share/icons/hicolor" 2>/dev/null
 kbuildsycoca6 --noincremental 2>/dev/null
 
-echo "Kurulum tamamlandı!"
-echo "Lütfen Plasma'yı yeniden başlatın!"
+echo "Kurulum başarıyla tamamlandı! Widget araç takımlarında hazır."

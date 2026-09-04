@@ -1,9 +1,10 @@
 {
+    "KPackageStructure": "Plasma/Applet",
     "KPlugin": {
         "Authors": [
             {
                 "Email": "info@merchinstudios.com",
-                "Name": "Merchin"
+                "Name": "MerchiN"
             }
         ],
         "Category": "System Information",
@@ -14,5 +15,6 @@
         "Name": "PowerHub",
         "Version": "1.0",
         "Website": "https://github.com/mmerchin/PowerHub"
-    }
+    },
+    "X-Plasma-API-Minimum-Version": "6.0"
 }
