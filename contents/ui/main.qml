@@ -12,9 +12,7 @@ import "providers"
 PlasmoidItem {
 	id: root
 
-	UPowerProvider { 
-		id: upowerProvider 
-	}
+	UPowerProvider { id: upowerProvider }
 	property var providers: [upowerProvider]
 
 	property var kdeConnectDevicesList: [] 
@@ -40,7 +38,6 @@ PlasmoidItem {
 				root.sysHasTLP = (parts[3] === "1");
 				root.sysInhibitType = parseInt(parts[4] || "0");
 				root.isSysChecked = true;
-				
 				dataPoller.connectSource(root.dynamicPollCmd);
 				disconnectSource(sourceName);
 			}
@@ -49,13 +46,9 @@ PlasmoidItem {
 
 	function decodeOctalUTF8(str) { 
 		try { 
-			var decoded = str.replace(/\\([0-7]{3})/g, function(match, p1) { 
-				return '%' + parseInt(p1, 8).toString(16); 
-			}); 
+			var decoded = str.replace(/\\([0-7]{3})/g, function(match, p1) { return '%' + parseInt(p1, 8).toString(16); }); 
 			return decodeURIComponent(decoded); 
-		} catch(e) { 
-			return str; 
-		} 
+		} catch(e) { return str; } 
 	}
 	function formatAppName(appName) { 
 		var lower = appName.toLowerCase(); 
@@ -83,7 +76,6 @@ PlasmoidItem {
 
 	property string dynamicPollCmd: {
 		if (!isSysChecked) return "";
-		
 		var ppdCmd = sysHasPPD ? "powerprofilesctl get 2>/dev/null" : "echo \"none\"";
 		var qdbusCmd = "QDBUS=$(command -v qdbus6 || command -v qdbus-qt6 || command -v qdbus); ";
 		var kdeCmd = "PH=\"\"; if [ -n \"$QDBUS\" ]; then for ID in $(timeout 1s kdeconnect-cli -a --id-only 2>/dev/null); do C=$(timeout 1s $QDBUS org.kde.kdeconnect /modules/kdeconnect/devices/$ID/battery org.kde.kdeconnect.device.battery.charge 2>/dev/null); N=$(timeout 1s $QDBUS org.kde.kdeconnect /modules/kdeconnect/devices/$ID org.kde.kdeconnect.device.name 2>/dev/null); I=$(timeout 1s $QDBUS org.kde.kdeconnect /modules/kdeconnect/devices/$ID/battery org.kde.kdeconnect.device.battery.isCharging 2>/dev/null); if [ -n \"$C\" ] && [ -n \"$N\" ]; then [ -n \"$PH\" ] && PH=\"${PH};;\"; PH=\"${PH}${N}|${C}|${I}\"; fi; done; fi; [ -z \"$PH\" ] && PH=\"NOT_FOUND\"; ";
@@ -91,7 +83,6 @@ PlasmoidItem {
 		var inhCleanCmd = "O2_CLEAN=$(echo -e \"$O2\" | grep -viE \"error|method|batterywatch|powerdevil|upower|networkmanager|modemmanager|compositor|realtime|vm_inhibitor|inhibitor|kwin|ksmserver|kded6\" | grep -v \"^$\" | sort -u | paste -sd \", \" -); ";
 		var solidCmd = "O3_RAW=$(timeout 1s busctl --user call org.kde.Solid.PowerManagement.PolicyAgent /org/kde/Solid/PowerManagement/PolicyAgent org.kde.Solid.PowerManagement.PolicyAgent ListInhibitions 2>/dev/null); ";
 		var echoCmd = "echo \"$P@@$PH@@$O2_CLEAN@@$O3_RAW\"";
-
 		return "bash -c '" + qdbusCmd + "P=$(" + ppdCmd + "); " + kdeCmd + inhCmd + inhCleanCmd + solidCmd + echoCmd + "'";
 	}
 
@@ -100,11 +91,9 @@ PlasmoidItem {
 		engine: "executable"
 		connectedSources: []
 		interval: 3000
-		
 		onNewData: (sourceName, data) => {
 			var out = data["stdout"] ? data["stdout"].trim() : ""; 
 			if (!out) return;
-			
 			var sections = out.split("@@");
 			if (sections.length >= 4) {
 				var p = sections[0];
@@ -118,9 +107,7 @@ PlasmoidItem {
 					var devicesArray = ph.split(";;");
 					for (var j = 0; j < devicesArray.length; j++) { 
 						var parts = devicesArray[j].split("|"); 
-						if (parts.length === 3) {
-							parsedDevices.push({ name: parts[0], percentage: parseInt(parts[1]), isCharging: (parts[2] === "true") }); 
-						}
+						if (parts.length === 3) parsedDevices.push({ name: parts[0], percentage: parseInt(parts[1]), isCharging: (parts[2] === "true") }); 
 					}
 				}
 				root.kdeConnectDevicesList = parsedDevices;
@@ -141,14 +128,10 @@ PlasmoidItem {
 				var regex = /"([^"]+)"/g; 
 				var matches = []; 
 				var match;
-				while ((match = regex.exec(kdeInhRaw)) !== null) { 
-					matches.push(root.decodeOctalUTF8(match[1])); 
-				}
+				while ((match = regex.exec(kdeInhRaw)) !== null) matches.push(root.decodeOctalUTF8(match[1])); 
 				
 				for (var k = 0; k < matches.length; k += 2) { 
-					if (k + 1 < matches.length) { 
-						addOrUpdateInhibitor(root.formatAppName(matches[k]), matches[k+1], root.getIconForApp(matches[k], matches[k+1])); 
-					} 
+					if (k + 1 < matches.length) addOrUpdateInhibitor(root.formatAppName(matches[k]), matches[k+1], root.getIconForApp(matches[k], matches[k+1])); 
 				}
 				
 				if (sysInh) { 
@@ -196,7 +179,6 @@ PlasmoidItem {
 				var map = JSON.parse(iconMapString || "{}");
 				var conf = map[deviceKey];
 				if (!conf) return originalIcon;
-				
 				switch(conf.type) {
 					case 0: return originalIcon;
 					case 1: return "computer-laptop";
@@ -223,7 +205,7 @@ PlasmoidItem {
 				var device = devices[i];
 				var id = device.serial || device.objectPath || "";
 				if (id && !seenIds[id]) {
-					var isMain = (device.name === "Primary" || device.name === "Bilgisayar" || device.name === "Computer" || device.name === i18n("Computer") || device.name === "Ordinateur" || device.name === "Ordenador" || device.name === "Computador" || device.name === "Компьютер" || device.name === "电脑" || device.name === "コンピューター");
+					var isMain = (device.name === "Primary" || device.name === "Bilgisayar" || device.name === "Computer" || device.name === i18n("Computer"));
 					if (isMain) {
 						if (!showMain) continue;
 						device.name = i18n("Computer");
@@ -308,7 +290,6 @@ PlasmoidItem {
 	compactRepresentation: Item {
 		id: compactRoot
 		
-		// YÜKSEKLİK AYARI (Kullanıcı değer girmezse varsayılan 24px kalır)
 		readonly property int customH: Plasmoid.configuration.panelIconHeight > 0 ? Plasmoid.configuration.panelIconHeight : 24
 		readonly property int totalW: Plasmoid.configuration.panelIconWidth + Plasmoid.configuration.panelLeftMargin + Plasmoid.configuration.panelRightMargin
 		
@@ -325,10 +306,11 @@ PlasmoidItem {
 			var cEco = Plasmoid.configuration.useAutoProfileColors ? "#87b07c" : Plasmoid.configuration.customEcoColor;
 			var cBal = Plasmoid.configuration.useAutoProfileColors ? "#ffffff" : Plasmoid.configuration.customBalancedColor;
 			var cPerf = Plasmoid.configuration.useAutoProfileColors ? "#3498db" : Plasmoid.configuration.customPerformanceColor;
+			var cIcon = Plasmoid.configuration.customIconModeColor ? Plasmoid.configuration.customIconModeColor : "#ffffff";
 
 			if (root.mainBatteryLevel > 0 && root.mainBatteryLevel <= 20) return "#ff4d4d"; 
 			if (root.mainIsPlugged && root.mainBatteryLevel < 100) return "#f1c40f"; 
-			if (mode === 0) return "#ffffff";
+			if (mode === 0) return cIcon; 
 			if (root.powerProfileVal === 0) return cEco; 
 			if (root.powerProfileVal === 2) return cPerf; 
 			return cBal; 
@@ -386,29 +368,60 @@ PlasmoidItem {
 						ctx.textBaseline = "middle";
 						ctx.textAlign = "center";
 
-						// YÜZDE GÖSTER/GİZLE KONTROLÜ
 						var showPercentage = Plasmoid.configuration.showPercentage !== undefined ? Plasmoid.configuration.showPercentage : true;
 						var textStr = (showPercentage && root.mainBatteryLevel > 0) ? root.mainBatteryLevel.toString() : "";
 						var textW = textStr !== "" ? ctx.measureText(textStr).width : 0;
 						
 						var mode = Plasmoid.configuration.profileDisplayStyle;
 						var prof = root.powerProfileVal;
-						var isCharging = root.mainIsCharging;
+						var isActiveCharging = root.mainIsCharging;
 
-						var showIcon = 0; 
-						
-						// EĞER YÜZDE KAPALIYSA VE ŞARJ OLUYORSA FİŞ (PLUG) İKONU GÖSTER
-						if (!showPercentage && isCharging) {
-							showIcon = 4;
-						} else if (mode === 0) { 
-							if (isCharging) showIcon = 1;
-							else if (prof === 2) showIcon = 2;
-							else if (prof === 0) showIcon = 3;
-						} else if (mode === 1) { 
-							showIcon = 0; 
-						} else if (mode === 2) { 
-							if (prof === 2) showIcon = 2;
-							else if (prof === 0) showIcon = 3;
+						var showIcon = 0; // 0:Yok, 1:Yaprak, 2:Yıldırım, 3:Fiş
+						var forceChargeColor = false; 
+
+						if (showPercentage) {
+							// === YÜZDELİK AÇIK ===
+							if (mode === 0 || mode === 2) {
+								if (prof === 2) showIcon = 2; // Performans -> Yıldırım
+								else if (prof === 0) showIcon = 1; // Eco -> Yaprak
+								else showIcon = 0; // Balanced -> Fiş yok
+								
+								// Sadece Simge (0) modunda şarj alıyorsa yüzdeliği ve simgeyi enerji akış rengine bürü
+								if (mode === 0 && isActiveCharging) {
+									forceChargeColor = true; 
+								}
+							} else if (mode === 1) {
+								// Renk Modu: Fiş hiç yok, şarj alıyorsa profil fark etmeksizin Yıldırım
+								if (isActiveCharging) showIcon = 2;
+								else showIcon = 0;
+							}
+						} else {
+							// === YÜZDELİK KAPALI ===
+							if (mode === 0 || mode === 2) {
+								if (isActiveCharging) {
+									if (prof === 2) { 
+										showIcon = 2; 
+										if (mode === 0) forceChargeColor = true; // Simge modunda yıldırım enerji akış rengine bürünsün
+									}
+									else if (prof === 0) { 
+										showIcon = 1; 
+										if (mode === 0) forceChargeColor = true; // Simge modunda yaprak enerji akış rengine bürünsün
+									}
+									else { 
+										showIcon = 3; // Balanced -> Fiş işareti
+										forceChargeColor = false; // Fiş normal renkte kalsın
+									}
+								} else {
+									// Şarj almıyorsa veya %100 ise fişi kaldır, normal profilleri göster
+									if (prof === 2) showIcon = 2;
+									else if (prof === 0) showIcon = 1;
+									else showIcon = 0; // Balanced -> İkon yok
+								}
+							} else if (mode === 1) {
+								// Renk Modu: Şarj alıyorsa profil fark etmeksizin Yıldırım
+								if (isActiveCharging) showIcon = 2;
+								else showIcon = 0;
+							}
 						}
 
 						var boltW = fSize * 0.55;
@@ -416,8 +429,8 @@ PlasmoidItem {
 						var spacing = fSize * 0.2;
 
 						var contentW = 0;
-						if (showIcon === 4) {
-							contentW = fSize * 0.6; // Fiş ikonu için yer ayrılıyor
+						if (showIcon === 3 && textStr === "") {
+							contentW = boltW; 
 						} else if (showIcon > 0 && textStr !== "") {
 							contentW = boltW + spacing + textW;
 						} else if (showIcon > 0) {
@@ -433,54 +446,47 @@ PlasmoidItem {
 							ctx.fillStyle = color;
 							ctx.strokeStyle = color;
 
-							if (showIcon === 4) {
-								// MERKEZE ÇİZİLEN FİŞ İKONU (Performans yıldırımı yerine)
-								var pW = fSize * 0.5;
-								var pH = fSize * 0.7;
-								var pX = startX + (contentW - pW) / 2;
-								var pY = (totalHeight - pH) / 2;
-
-								ctx.lineWidth = Math.max(1.5, fSize * 0.1);
-								ctx.lineCap = "round";
-								ctx.lineJoin = "round";
-
-								// Fiş Uçları (Prongs)
-								ctx.beginPath();
-								ctx.moveTo(pX + pW * 0.25, pY);
-								ctx.lineTo(pX + pW * 0.25, pY + pH * 0.3);
-								ctx.moveTo(pX + pW * 0.75, pY);
-								ctx.lineTo(pX + pW * 0.75, pY + pH * 0.3);
-								ctx.stroke();
-
-								// Fiş Gövdesi
-								ctx.fillRect(pX, pY + pH * 0.3, pW, pH * 0.4);
-
-								// Alt Kablo
-								ctx.beginPath();
-								ctx.moveTo(pX + pW * 0.5, pY + pH * 0.7);
-								ctx.lineTo(pX + pW * 0.5, pY + pH);
-								ctx.stroke();
-
-							} else if (showIcon > 0) {
+							if (showIcon > 0) {
 								var bX = startX;
 								var bY = (totalHeight - boltH) / 2;
 								
 								ctx.beginPath();
-								if (showIcon === 1 || showIcon === 2) {
+								if (showIcon === 2) {
+									// Yıldırım
 									ctx.moveTo(bX + boltW * 0.6, bY);
 									ctx.lineTo(bX, bY + boltH * 0.55);
 									ctx.lineTo(bX + boltW * 0.45, bY + boltH * 0.55);
 									ctx.lineTo(bX + boltW * 0.3, bY + boltH);
 									ctx.lineTo(bX + boltW, bY + boltH * 0.4);
 									ctx.lineTo(bX + boltW * 0.55, bY + boltH * 0.4);
-								} else if (showIcon === 3) {
+								} else if (showIcon === 1) {
+									// Yaprak
 									var lX = bX; var lY = bY; var lW = boltW; var lH = boltH;
 									ctx.moveTo(lX + lW * 0.2, lY + lH * 0.9);
 									ctx.quadraticCurveTo(lX - lW * 0.2, lY + lH * 0.3, lX + lW * 0.8, lY + lH * 0.1);
 									ctx.quadraticCurveTo(lX + lW * 0.9, lY + lH * 0.8, lX + lW * 0.2, lY + lH * 0.9);
+								} else if (showIcon === 3) {
+									// Fiş İkonu 
+									ctx.lineWidth = 1.5;
+									var pX = bX + boltW*0.1;
+									var pY = bY + boltH*0.2;
+									var pW = boltW*0.8;
+									var pH = boltH*0.8;
+									
+									ctx.fillRect(pX, pY + pH*0.4, pW, pH*0.4);
+									ctx.beginPath();
+									ctx.moveTo(pX + pW*0.25, pY + pH*0.4); ctx.lineTo(pX + pW*0.25, pY);
+									ctx.moveTo(pX + pW*0.75, pY + pH*0.4); ctx.lineTo(pX + pW*0.75, pY);
+									ctx.stroke();
+									ctx.beginPath();
+									ctx.moveTo(pX + pW*0.5, pY + pH*0.8); ctx.lineTo(pX + pW*0.5, pY + pH*1.2);
+									ctx.stroke();
 								}
-								ctx.closePath();
-								ctx.fill();
+								
+								if (showIcon !== 3) {
+									ctx.closePath();
+									ctx.fill();
+								}
 								
 								if (textStr !== "") {
 									var textCenterX = startX + boltW + spacing + (textW / 2);
@@ -500,7 +506,7 @@ PlasmoidItem {
 						if (mode === 0) {
 							var baseTextC = Plasmoid.configuration.useAutoTextColor ? autoContrastColor : Plasmoid.configuration.customTextColor;
 							var baseRightC = Plasmoid.configuration.useAutoTextColor ? compactRoot.batteryColor : Plasmoid.configuration.customTextColor;
-							if (isCharging) {
+							if (forceChargeColor) {
 								leftSideColor = Plasmoid.configuration.chargingHighlightColor;
 								rightSideColor = Plasmoid.configuration.chargingHighlightColor;
 							} else {
@@ -514,26 +520,17 @@ PlasmoidItem {
 								else if (prof === 2) textC1 = Plasmoid.configuration.customPerformanceTextColor;
 								else textC1 = Plasmoid.configuration.customBalancedTextColor;
 							}
-							if (isCharging) {
-								leftSideColor = "#f6e58d"; rightSideColor = "#f6e58d";
-							} else {
-								leftSideColor = textC1;
-								rightSideColor = Plasmoid.configuration.useAutoProfileColors ? compactRoot.batteryColor : textC1;
-							}
+							leftSideColor = textC1;
+							rightSideColor = Plasmoid.configuration.useAutoProfileColors ? compactRoot.batteryColor : textC1;
 						} else if (mode === 2) {
 							var textC2 = autoContrastColor;
-							var chargeC2 = "#f6e58d";
 							if (!Plasmoid.configuration.useAutoProfileColors) {
-								if (prof === 0) { textC2 = Plasmoid.configuration.customEcoTextColor; chargeC2 = Plasmoid.configuration.customEcoChargingColor; }
-								else if (prof === 2) { textC2 = Plasmoid.configuration.customPerformanceTextColor; chargeC2 = Plasmoid.configuration.customPerformanceChargingColor; }
-								else { textC2 = Plasmoid.configuration.customBalancedTextColor; chargeC2 = Plasmoid.configuration.customBalancedChargingColor; }
+								if (prof === 0) textC2 = Plasmoid.configuration.customEcoTextColor;
+								else if (prof === 2) textC2 = Plasmoid.configuration.customPerformanceTextColor;
+								else textC2 = Plasmoid.configuration.customBalancedTextColor;
 							}
-							if (isCharging) {
-								leftSideColor = chargeC2; rightSideColor = chargeC2;
-							} else {
-								leftSideColor = textC2;
-								rightSideColor = Plasmoid.configuration.useAutoProfileColors ? compactRoot.batteryColor : textC2;
-							}
+							leftSideColor = textC2;
+							rightSideColor = Plasmoid.configuration.useAutoProfileColors ? compactRoot.batteryColor : textC2;
 						}
 
 						ctx.save();
@@ -555,6 +552,7 @@ PlasmoidItem {
 						target: root
 						function onMainBatteryLevelChanged() { dynamicCanvas.requestPaint(); }
 						function onMainIsChargingChanged() { dynamicCanvas.requestPaint(); }
+						function onMainIsPluggedChanged() { dynamicCanvas.requestPaint(); }
 						function onPowerProfileValChanged() { dynamicCanvas.requestPaint(); }
 					}
 					Connections {
@@ -585,6 +583,7 @@ PlasmoidItem {
 						function onCustomPerformanceChargingColorChanged() { dynamicCanvas.requestPaint(); }
 						function onShowPercentageChanged() { dynamicCanvas.requestPaint(); }
 						function onPanelIconHeightChanged() { dynamicCanvas.requestPaint(); }
+						function onCustomIconModeColorChanged() { dynamicCanvas.requestPaint(); }
 					}
 				}
 			}

@@ -17,6 +17,10 @@
     <entry name="customFontSize" type="Int"><default>13</default></entry>
     
     <entry name="profileDisplayStyle" type="Int"><default>1</default></entry>
+    
+    <!-- YENİ EKLENEN: SİMGE MODU İÇİN PİL RENGİ -->
+    <entry name="customIconModeColor" type="String"><default>#ffffff</default></entry>
+    
     <entry name="chargingHighlightColor" type="String"><default>#f1c40f</default></entry>
     <entry name="useAutoTextColor" type="bool"><default>true</default></entry>
     <entry name="customTextColor" type="String"><default>#ffffff</default></entry>

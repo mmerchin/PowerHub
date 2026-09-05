@@ -19,6 +19,7 @@ KCMUtils.SimpleKCM {
 	property alias cfg_customFontSize: customFontSize.value
 	
 	property alias cfg_profileDisplayStyle: displayStyleCombo.currentIndex
+	property alias cfg_customIconModeColor: customIconModeColorField.text
 	property alias cfg_chargingHighlightColor: chargingHighlightColor.text
 	
 	property alias cfg_useAutoTextColor: useAutoTextColor.checked
@@ -93,6 +94,7 @@ KCMUtils.SimpleKCM {
 
 				Kirigami.Separator { Kirigami.FormData.isSection: true }
 
+				ColorDialog { id: iconModeColorDialog; title: i18n("Battery Icon Color"); onAccepted: customIconModeColorField.text = selectedColor.toString() }
 				ColorDialog { id: textColorDialog; title: i18n("General Text Color"); onAccepted: customTextColor.text = selectedColor.toString() }
 				ColorDialog { id: chargingColorDialog; title: i18n("Energy Flow Color (Charging)"); onAccepted: chargingHighlightColor.text = selectedColor.toString() }
 				ColorDialog { id: ecoColorDialog; title: i18n("Eco Background"); onAccepted: customEcoColor.text = selectedColor.toString() }
@@ -104,6 +106,13 @@ KCMUtils.SimpleKCM {
 				ColorDialog { id: ecoChargeDialog; title: i18n("Eco Charging Color"); onAccepted: ecoChargeColor.text = selectedColor.toString() }
 				ColorDialog { id: balChargeDialog; title: i18n("Balanced Charging Color"); onAccepted: balChargeColor.text = selectedColor.toString() }
 				ColorDialog { id: perfChargeDialog; title: i18n("Performance Charging Color"); onAccepted: perfChargeColor.text = selectedColor.toString() }
+
+				RowLayout {
+					visible: displayStyleCombo.currentIndex === 0
+					Kirigami.FormData.label: i18n("Battery Icon Color:")
+					Rectangle { width: 24; height: 24; radius: 4; border.color: "#555"; color: customIconModeColorField.text !== "" ? customIconModeColorField.text : "#ffffff"; MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: { iconModeColorDialog.selectedColor = color; iconModeColorDialog.open() } } }
+					QQC2.TextField { id: customIconModeColorField; placeholderText: "#ffffff" }
+				}
 
 				QQC2.CheckBox {
 					id: useAutoTextColor
