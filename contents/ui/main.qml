@@ -21,14 +21,12 @@ PlasmoidItem {
 	property int powerProfileVal: 1 
 	property var inhibitorsList: [] 
 
-	// SİSTEM SORGULAMA DEĞİŞKENLERİ (Evrensel Uyum İçin)
 	property string sysQdbusCmd: "qdbus"
 	property bool sysHasPPD: false
 	property bool sysHasTLP: false
 	property int sysInhibitType: 0
 	property bool isSysChecked: false
 
-	// WIDGET AÇILIR AÇILMAZ SİSTEMDE NELER KURULU DİYE KONTROL EDEN MOTOR
 	P5Support.DataSource {
 		id: sysCheckSource
 		engine: "executable"
@@ -43,7 +41,6 @@ PlasmoidItem {
 				root.sysInhibitType = parseInt(parts[4] || "0");
 				root.isSysChecked = true;
 				
-				// Sistem taraması bittiğine göre ana motoru başlat
 				dataPoller.connectSource(root.dynamicPollCmd);
 				disconnectSource(sourceName);
 			}
@@ -84,24 +81,15 @@ PlasmoidItem {
 		return "application-x-executable"; 
 	}
 
-	// SİSTEME GÖRE DİNAMİK OLARAK ŞEKİLLENEN KOD (Tırnak hataları tamamen giderildi)
 	property string dynamicPollCmd: {
 		if (!isSysChecked) return "";
 		
 		var ppdCmd = sysHasPPD ? "powerprofilesctl get 2>/dev/null" : "echo \"none\"";
-		
 		var qdbusCmd = "QDBUS=$(command -v qdbus6 || command -v qdbus-qt6 || command -v qdbus); ";
-		
 		var kdeCmd = "PH=\"\"; if [ -n \"$QDBUS\" ]; then for ID in $(timeout 1s kdeconnect-cli -a --id-only 2>/dev/null); do C=$(timeout 1s $QDBUS org.kde.kdeconnect /modules/kdeconnect/devices/$ID/battery org.kde.kdeconnect.device.battery.charge 2>/dev/null); N=$(timeout 1s $QDBUS org.kde.kdeconnect /modules/kdeconnect/devices/$ID org.kde.kdeconnect.device.name 2>/dev/null); I=$(timeout 1s $QDBUS org.kde.kdeconnect /modules/kdeconnect/devices/$ID/battery org.kde.kdeconnect.device.battery.isCharging 2>/dev/null); if [ -n \"$C\" ] && [ -n \"$N\" ]; then [ -n \"$PH\" ] && PH=\"${PH};;\"; PH=\"${PH}${N}|${C}|${I}\"; fi; done; fi; [ -z \"$PH\" ] && PH=\"NOT_FOUND\"; ";
-		
-		var inhCmd = (sysInhibitType === 2) 
-			? "O2=$(timeout 1s systemd-inhibit --list --no-pager --no-legend 2>/dev/null | awk \"/sleep|idle/ {print \\$1}\"); " 
-			: "O2=\"\"; ";
-			
+		var inhCmd = (sysInhibitType === 2) ? "O2=$(timeout 1s systemd-inhibit --list --no-pager --no-legend 2>/dev/null | awk \"/sleep|idle/ {print \\$1}\"); " : "O2=\"\"; ";
 		var inhCleanCmd = "O2_CLEAN=$(echo -e \"$O2\" | grep -viE \"error|method|batterywatch|powerdevil|upower|networkmanager|modemmanager|compositor|realtime|vm_inhibitor|inhibitor|kwin|ksmserver|kded6\" | grep -v \"^$\" | sort -u | paste -sd \", \" -); ";
-		
 		var solidCmd = "O3_RAW=$(timeout 1s busctl --user call org.kde.Solid.PowerManagement.PolicyAgent /org/kde/Solid/PowerManagement/PolicyAgent org.kde.Solid.PowerManagement.PolicyAgent ListInhibitions 2>/dev/null); ";
-		
 		var echoCmd = "echo \"$P@@$PH@@$O2_CLEAN@@$O3_RAW\"";
 
 		return "bash -c '" + qdbusCmd + "P=$(" + ppdCmd + "); " + kdeCmd + inhCmd + inhCleanCmd + solidCmd + echoCmd + "'";
@@ -120,13 +108,9 @@ PlasmoidItem {
 			var sections = out.split("@@");
 			if (sections.length >= 4) {
 				var p = sections[0];
-				if (p === "power-saver") {
-					root.powerProfileVal = 0;
-				} else if (p === "performance") {
-					root.powerProfileVal = 2;
-				} else if (p === "balanced") {
-					root.powerProfileVal = 1;
-				}
+				if (p === "power-saver") root.powerProfileVal = 0;
+				else if (p === "performance") root.powerProfileVal = 2;
+				else root.powerProfileVal = 1;
 
 				var ph = sections[1]; 
 				var parsedDevices = [];
@@ -135,11 +119,7 @@ PlasmoidItem {
 					for (var j = 0; j < devicesArray.length; j++) { 
 						var parts = devicesArray[j].split("|"); 
 						if (parts.length === 3) {
-							parsedDevices.push({ 
-								name: parts[0], 
-								percentage: parseInt(parts[1]), 
-								isCharging: (parts[2] === "true") 
-							}); 
+							parsedDevices.push({ name: parts[0], percentage: parseInt(parts[1]), isCharging: (parts[2] === "true") }); 
 						}
 					}
 				}
@@ -151,9 +131,7 @@ PlasmoidItem {
 				function addOrUpdateInhibitor(aName, aReason, aIcon) { 
 					for (var i = 0; i < arr.length; i++) { 
 						if (arr[i].appName === aName) { 
-							if (arr[i].reason.indexOf(aReason) === -1) { 
-								arr[i].reason += ", " + aReason; 
-							} 
+							if (arr[i].reason.indexOf(aReason) === -1) arr[i].reason += ", " + aReason; 
 							return; 
 						} 
 					} 
@@ -169,9 +147,7 @@ PlasmoidItem {
 				
 				for (var k = 0; k < matches.length; k += 2) { 
 					if (k + 1 < matches.length) { 
-						var rawApp = matches[k]; 
-						var rawReason = matches[k+1]; 
-						addOrUpdateInhibitor(root.formatAppName(rawApp), rawReason, root.getIconForApp(rawApp, rawReason)); 
+						addOrUpdateInhibitor(root.formatAppName(matches[k]), matches[k+1], root.getIconForApp(matches[k], matches[k+1])); 
 					} 
 				}
 				
@@ -179,9 +155,7 @@ PlasmoidItem {
 					var sArr = sysInh.split(", "); 
 					for (var m = 0; m < sArr.length; m++) { 
 						var cleaned = sArr[m].trim(); 
-						if (cleaned) { 
-							addOrUpdateInhibitor(root.formatAppName(cleaned), i18n("Locking system"), root.getIconForApp(cleaned, "")); 
-						} 
+						if (cleaned) addOrUpdateInhibitor(root.formatAppName(cleaned), i18n("Locking system"), root.getIconForApp(cleaned, "")); 
 					} 
 				}
 				root.inhibitorsList = arr;
@@ -192,29 +166,18 @@ PlasmoidItem {
 	P5Support.DataSource { 
 		id: cmdRunner
 		engine: "executable"
-		onNewData: (sourceName, data) => { 
-			disconnectSource(sourceName); 
-		} 
+		onNewData: (sourceName, data) => { disconnectSource(sourceName); } 
 	}
 	
-	function runCmd(cmd) { 
-		cmdRunner.connectSource(cmd + " # " + new Date().getTime()); 
-	}
+	function runCmd(cmd) { cmdRunner.connectSource(cmd + " # " + new Date().getTime()); }
 
-	// Sisteme Göre Evrensel Engelleme Komutu
 	property string inhibitCmd: {
-		if (sysInhibitType === 2) {
-			return "systemd-inhibit --what=idle:sleep --who=\"PowerHub\" --why=\"Manuel\" sleep 999999999";
-		} else if (sysInhibitType === 1) {
-			return "kde-inhibit --power --screenSaver sleep 999999999";
-		}
+		if (sysInhibitType === 2) return "systemd-inhibit --what=idle:sleep --who=\"PowerHub\" --why=\"Manuel\" sleep 999999999";
+		else if (sysInhibitType === 1) return "kde-inhibit --power --screenSaver sleep 999999999";
 		return "";
 	}
 	
-	P5Support.DataSource { 
-		id: inhibitSource
-		engine: "executable" 
-	}
+	P5Support.DataSource { id: inhibitSource; engine: "executable" }
 
 	property var allDevices: mergeDevices(
 		providers.map(p => p.devices), 
@@ -251,9 +214,7 @@ PlasmoidItem {
 					case 13: return conf.path !== "" ? conf.path : originalIcon;
 					default: return originalIcon;
 				}
-			} catch(e) {
-				return originalIcon;
-			}
+			} catch(e) { return originalIcon; }
 		}
 
 		for (var pIdx = 0; pIdx < deviceProviders.length; pIdx++) {
@@ -293,15 +254,11 @@ PlasmoidItem {
 		var activeKeys = ["MainComputer"];
 		for (var m = 0; m < merged.length; m++) {
 			var mKey = merged[m].key;
-			if (mKey && mKey !== "MainComputer" && activeKeys.indexOf(mKey) === -1) {
-				activeKeys.push(mKey);
-			}
+			if (mKey && mKey !== "MainComputer" && activeKeys.indexOf(mKey) === -1) activeKeys.push(mKey);
 		}
 		
 		var activeKeysStr = activeKeys.join("|");
-		if (Plasmoid.configuration.knownDevices !== activeKeysStr) {
-			Plasmoid.configuration.knownDevices = activeKeysStr;
-		}
+		if (Plasmoid.configuration.knownDevices !== activeKeysStr) Plasmoid.configuration.knownDevices = activeKeysStr;
 
 		merged.sort((a, b) => {
 			if (a.key === "MainComputer") return -1;
@@ -319,9 +276,7 @@ PlasmoidItem {
 	function updateBatteryState() {
 		var bData = batterySource.data["Battery"];
 		if (bData) {
-			if (bData["Percent"] !== undefined) {
-				root.mainBatteryLevel = bData["Percent"];
-			}
+			if (bData["Percent"] !== undefined) root.mainBatteryLevel = bData["Percent"];
 			root.mainIsCharging = (bData["State"] === "Charging");
 			root.mainIsPlugged = !root.mainIsCharging && (bData["State"] === "Full" || bData["State"] === "Not Charging" || root.mainBatteryLevel === 100);
 		}
@@ -331,12 +286,8 @@ PlasmoidItem {
 		id: batterySource
 		engine: "powermanagement"
 		connectedSources: ["Battery"]
-		onDataChanged: {
-			root.updateBatteryState();
-		}
-		onNewData: (sourceName, data) => { 
-			root.updateBatteryState();
-		}
+		onDataChanged: root.updateBatteryState()
+		onNewData: (sourceName, data) => root.updateBatteryState()
 	}
 
 	Timer {
@@ -348,26 +299,24 @@ PlasmoidItem {
 		onTriggered: {
 			root.updateBatteryState();
 			attempts++;
-			if (root.mainBatteryLevel > 0 || attempts > 20) {
-				running = false;
-			}
+			if (root.mainBatteryLevel > 0 || attempts > 20) running = false;
 		}
 	}
 
-	Component.onCompleted: {
-		root.updateBatteryState();
-	}
+	Component.onCompleted: root.updateBatteryState()
 
 	compactRepresentation: Item {
 		id: compactRoot
 		
+		// YÜKSEKLİK AYARI (Kullanıcı değer girmezse varsayılan 24px kalır)
+		readonly property int customH: Plasmoid.configuration.panelIconHeight > 0 ? Plasmoid.configuration.panelIconHeight : 24
 		readonly property int totalW: Plasmoid.configuration.panelIconWidth + Plasmoid.configuration.panelLeftMargin + Plasmoid.configuration.panelRightMargin
 		
 		Layout.minimumWidth: totalW
 		Layout.preferredWidth: totalW
 		Layout.maximumWidth: totalW
 		implicitWidth: totalW
-		implicitHeight: 24
+		implicitHeight: customH
 
 		property int currentFontSize: Plasmoid.configuration.useAutoFontSize ? 13 : Plasmoid.configuration.customFontSize
 
@@ -379,9 +328,7 @@ PlasmoidItem {
 
 			if (root.mainBatteryLevel > 0 && root.mainBatteryLevel <= 20) return "#ff4d4d"; 
 			if (root.mainIsPlugged && root.mainBatteryLevel < 100) return "#f1c40f"; 
-
 			if (mode === 0) return "#ffffff";
-			
 			if (root.powerProfileVal === 0) return cEco; 
 			if (root.powerProfileVal === 2) return cPerf; 
 			return cBal; 
@@ -391,14 +338,14 @@ PlasmoidItem {
 			anchors.fill: parent
 			anchors.leftMargin: Plasmoid.configuration.panelLeftMargin
 			anchors.rightMargin: Plasmoid.configuration.panelRightMargin
-			anchors.topMargin: 3
-			anchors.bottomMargin: 3
+			anchors.topMargin: 2
+			anchors.bottomMargin: 2
 
 			Rectangle {
 				id: batteryFrame
 				anchors.centerIn: parent
 				width: Plasmoid.configuration.panelIconWidth
-				height: Math.max(18, compactRoot.currentFontSize + 4)
+				height: compactRoot.customH > 4 ? compactRoot.customH - 4 : compactRoot.customH
 				color: "transparent"
 				border.width: 0 
 				radius: Plasmoid.configuration.panelIconRadius
@@ -418,11 +365,7 @@ PlasmoidItem {
 					width: parent.width * (root.mainBatteryLevel / 100)
 					color: compactRoot.batteryColor
 					radius: Plasmoid.configuration.panelIconRadius
-					Behavior on width { 
-						NumberAnimation { 
-							duration: 400 
-						} 
-					}
+					Behavior on width { NumberAnimation { duration: 400 } }
 					opacity: 1.0
 				}
 
@@ -443,44 +386,82 @@ PlasmoidItem {
 						ctx.textBaseline = "middle";
 						ctx.textAlign = "center";
 
-						var textStr = root.mainBatteryLevel > 0 ? root.mainBatteryLevel.toString() : "";
-						var textW = ctx.measureText(textStr).width;
+						// YÜZDE GÖSTER/GİZLE KONTROLÜ
+						var showPercentage = Plasmoid.configuration.showPercentage !== undefined ? Plasmoid.configuration.showPercentage : true;
+						var textStr = (showPercentage && root.mainBatteryLevel > 0) ? root.mainBatteryLevel.toString() : "";
+						var textW = textStr !== "" ? ctx.measureText(textStr).width : 0;
 						
 						var mode = Plasmoid.configuration.profileDisplayStyle;
 						var prof = root.powerProfileVal;
 						var isCharging = root.mainIsCharging;
 
 						var showIcon = 0; 
-						if (mode === 0) { 
-							if (isCharging) {
-								showIcon = 1;
-							} else if (prof === 2) {
-								showIcon = 2;
-							} else if (prof === 0) {
-								showIcon = 3;
-							}
+						
+						// EĞER YÜZDE KAPALIYSA VE ŞARJ OLUYORSA FİŞ (PLUG) İKONU GÖSTER
+						if (!showPercentage && isCharging) {
+							showIcon = 4;
+						} else if (mode === 0) { 
+							if (isCharging) showIcon = 1;
+							else if (prof === 2) showIcon = 2;
+							else if (prof === 0) showIcon = 3;
 						} else if (mode === 1) { 
 							showIcon = 0; 
 						} else if (mode === 2) { 
-							if (prof === 2) {
-								showIcon = 2;
-							} else if (prof === 0) {
-								showIcon = 3;
-							}
+							if (prof === 2) showIcon = 2;
+							else if (prof === 0) showIcon = 3;
 						}
 
 						var boltW = fSize * 0.55;
 						var boltH = fSize * 0.85;
 						var spacing = fSize * 0.2;
 
-						var contentW = (showIcon > 0) ? (boltW + spacing + textW) : textW;
+						var contentW = 0;
+						if (showIcon === 4) {
+							contentW = fSize * 0.6; // Fiş ikonu için yer ayrılıyor
+						} else if (showIcon > 0 && textStr !== "") {
+							contentW = boltW + spacing + textW;
+						} else if (showIcon > 0) {
+							contentW = boltW;
+						} else {
+							contentW = textW;
+						}
+
 						var startX = (totalWidth - contentW) / 2;
 						var textY = (totalHeight / 2) + (fSize * 0.08); 
 
 						function drawContent(color) {
 							ctx.fillStyle = color;
+							ctx.strokeStyle = color;
 
-							if (showIcon > 0) {
+							if (showIcon === 4) {
+								// MERKEZE ÇİZİLEN FİŞ İKONU (Performans yıldırımı yerine)
+								var pW = fSize * 0.5;
+								var pH = fSize * 0.7;
+								var pX = startX + (contentW - pW) / 2;
+								var pY = (totalHeight - pH) / 2;
+
+								ctx.lineWidth = Math.max(1.5, fSize * 0.1);
+								ctx.lineCap = "round";
+								ctx.lineJoin = "round";
+
+								// Fiş Uçları (Prongs)
+								ctx.beginPath();
+								ctx.moveTo(pX + pW * 0.25, pY);
+								ctx.lineTo(pX + pW * 0.25, pY + pH * 0.3);
+								ctx.moveTo(pX + pW * 0.75, pY);
+								ctx.lineTo(pX + pW * 0.75, pY + pH * 0.3);
+								ctx.stroke();
+
+								// Fiş Gövdesi
+								ctx.fillRect(pX, pY + pH * 0.3, pW, pH * 0.4);
+
+								// Alt Kablo
+								ctx.beginPath();
+								ctx.moveTo(pX + pW * 0.5, pY + pH * 0.7);
+								ctx.lineTo(pX + pW * 0.5, pY + pH);
+								ctx.stroke();
+
+							} else if (showIcon > 0) {
 								var bX = startX;
 								var bY = (totalHeight - boltH) / 2;
 								
@@ -493,10 +474,7 @@ PlasmoidItem {
 									ctx.lineTo(bX + boltW, bY + boltH * 0.4);
 									ctx.lineTo(bX + boltW * 0.55, bY + boltH * 0.4);
 								} else if (showIcon === 3) {
-									var lX = bX; 
-									var lY = bY; 
-									var lW = boltW; 
-									var lH = boltH;
+									var lX = bX; var lY = bY; var lW = boltW; var lH = boltH;
 									ctx.moveTo(lX + lW * 0.2, lY + lH * 0.9);
 									ctx.quadraticCurveTo(lX - lW * 0.2, lY + lH * 0.3, lX + lW * 0.8, lY + lH * 0.1);
 									ctx.quadraticCurveTo(lX + lW * 0.9, lY + lH * 0.8, lX + lW * 0.2, lY + lH * 0.9);
@@ -532,17 +510,12 @@ PlasmoidItem {
 						} else if (mode === 1) {
 							var textC1 = autoContrastColor;
 							if (!Plasmoid.configuration.useAutoProfileColors) {
-								if (prof === 0) {
-									textC1 = Plasmoid.configuration.customEcoTextColor;
-								} else if (prof === 2) {
-									textC1 = Plasmoid.configuration.customPerformanceTextColor;
-								} else {
-									textC1 = Plasmoid.configuration.customBalancedTextColor;
-								}
+								if (prof === 0) textC1 = Plasmoid.configuration.customEcoTextColor;
+								else if (prof === 2) textC1 = Plasmoid.configuration.customPerformanceTextColor;
+								else textC1 = Plasmoid.configuration.customBalancedTextColor;
 							}
 							if (isCharging) {
-								leftSideColor = "#f6e58d"; 
-								rightSideColor = "#f6e58d";
+								leftSideColor = "#f6e58d"; rightSideColor = "#f6e58d";
 							} else {
 								leftSideColor = textC1;
 								rightSideColor = Plasmoid.configuration.useAutoProfileColors ? compactRoot.batteryColor : textC1;
@@ -551,20 +524,12 @@ PlasmoidItem {
 							var textC2 = autoContrastColor;
 							var chargeC2 = "#f6e58d";
 							if (!Plasmoid.configuration.useAutoProfileColors) {
-								if (prof === 0) { 
-									textC2 = Plasmoid.configuration.customEcoTextColor; 
-									chargeC2 = Plasmoid.configuration.customEcoChargingColor; 
-								} else if (prof === 2) { 
-									textC2 = Plasmoid.configuration.customPerformanceTextColor; 
-									chargeC2 = Plasmoid.configuration.customPerformanceChargingColor; 
-								} else { 
-									textC2 = Plasmoid.configuration.customBalancedTextColor; 
-									chargeC2 = Plasmoid.configuration.customBalancedChargingColor; 
-								}
+								if (prof === 0) { textC2 = Plasmoid.configuration.customEcoTextColor; chargeC2 = Plasmoid.configuration.customEcoChargingColor; }
+								else if (prof === 2) { textC2 = Plasmoid.configuration.customPerformanceTextColor; chargeC2 = Plasmoid.configuration.customPerformanceChargingColor; }
+								else { textC2 = Plasmoid.configuration.customBalancedTextColor; chargeC2 = Plasmoid.configuration.customBalancedChargingColor; }
 							}
 							if (isCharging) {
-								leftSideColor = chargeC2;
-								rightSideColor = chargeC2;
+								leftSideColor = chargeC2; rightSideColor = chargeC2;
 							} else {
 								leftSideColor = textC2;
 								rightSideColor = Plasmoid.configuration.useAutoProfileColors ? compactRoot.batteryColor : textC2;
@@ -588,30 +553,19 @@ PlasmoidItem {
 
 					Connections {
 						target: root
-						function onMainBatteryLevelChanged() { 
-							dynamicCanvas.requestPaint(); 
-						}
-						function onMainIsChargingChanged() { 
-							dynamicCanvas.requestPaint(); 
-						}
-						function onPowerProfileValChanged() { 
-							dynamicCanvas.requestPaint(); 
-						}
+						function onMainBatteryLevelChanged() { dynamicCanvas.requestPaint(); }
+						function onMainIsChargingChanged() { dynamicCanvas.requestPaint(); }
+						function onPowerProfileValChanged() { dynamicCanvas.requestPaint(); }
 					}
 					Connections {
 						target: batteryFill
-						function onWidthChanged() { 
-							dynamicCanvas.requestPaint(); 
-						}
+						function onWidthChanged() { dynamicCanvas.requestPaint(); }
 					}
 					Connections {
 						target: compactRoot
-						function onBatteryColorChanged() { 
-							dynamicCanvas.requestPaint(); 
-						}
-						function onCurrentFontSizeChanged() { 
-							dynamicCanvas.requestPaint(); 
-						}
+						function onBatteryColorChanged() { dynamicCanvas.requestPaint(); }
+						function onCurrentFontSizeChanged() { dynamicCanvas.requestPaint(); }
+						function onCustomHChanged() { dynamicCanvas.requestPaint(); }
 					}
 					Connections {
 						target: Plasmoid.configuration
@@ -629,15 +583,15 @@ PlasmoidItem {
 						function onCustomEcoChargingColorChanged() { dynamicCanvas.requestPaint(); }
 						function onCustomBalancedChargingColorChanged() { dynamicCanvas.requestPaint(); }
 						function onCustomPerformanceChargingColorChanged() { dynamicCanvas.requestPaint(); }
+						function onShowPercentageChanged() { dynamicCanvas.requestPaint(); }
+						function onPanelIconHeightChanged() { dynamicCanvas.requestPaint(); }
 					}
 				}
 			}
 		}
 		MouseArea { 
 			anchors.fill: parent
-			onClicked: {
-				root.expanded = !root.expanded;
-			} 
+			onClicked: { root.expanded = !root.expanded; } 
 		}
 	}
 
@@ -645,9 +599,7 @@ PlasmoidItem {
 		id: fullRoot
 		Layout.minimumWidth: Kirigami.Units.gridUnit * 30
 		Layout.preferredWidth: Kirigami.Units.gridUnit * 30
-		
 		property int contentHeight: mainColumn.implicitHeight > 0 ? (mainColumn.implicitHeight + Kirigami.Units.largeSpacing * 2) : 200
-
 		Layout.minimumHeight: Math.min(contentHeight, 700)
 		Layout.preferredHeight: Math.min(contentHeight, 700)
 		Layout.maximumHeight: Math.min(contentHeight, 700)
@@ -689,7 +641,6 @@ PlasmoidItem {
 								implicitWidth: Kirigami.Units.iconSizes.medium
 								implicitHeight: Kirigami.Units.iconSizes.medium
 								Layout.alignment: Qt.AlignVCenter
-
 								Kirigami.Icon {
 									source: modelData.icon || "battery-none"
 									anchors.fill: parent
@@ -720,43 +671,21 @@ PlasmoidItem {
 								Layout.alignment: Qt.AlignRight
 
 								property bool isChargingState: {
-									if (modelData.key === "MainComputer") {
-										return root.mainIsCharging;
-									}
-									if (modelData.isCharging !== undefined && modelData.isCharging) {
-										return true;
-									}
-									if (modelData.charging !== undefined && modelData.charging) {
-										return true;
-									}
-									if (modelData.state !== undefined && modelData.state === 1) {
-										return true;
-									}
-									if (modelData.status !== undefined && (modelData.status === 1 || String(modelData.status).toLowerCase() === "charging")) {
-										return true;
-									}
-									if (modelData.icon && String(modelData.icon).toLowerCase().indexOf("charging") !== -1) {
-										return true;
-									}
+									if (modelData.key === "MainComputer") return root.mainIsCharging;
+									if (modelData.isCharging !== undefined && modelData.isCharging) return true;
+									if (modelData.charging !== undefined && modelData.charging) return true;
+									if (modelData.state !== undefined && modelData.state === 1) return true;
+									if (modelData.status !== undefined && (modelData.status === 1 || String(modelData.status).toLowerCase() === "charging")) return true;
+									if (modelData.icon && String(modelData.icon).toLowerCase().indexOf("charging") !== -1) return true;
 									return false;
 								}
 
 								property bool isPluggedState: {
-									if (modelData.key === "MainComputer") {
-										return root.mainIsPlugged;
-									}
-									if (modelData.percentage === 100 && !isChargingState) {
-										return true;
-									}
-									if (modelData.state !== undefined && (modelData.state === 4 || modelData.state === 5)) {
-										return true;
-									}
-									if (modelData.status !== undefined && (String(modelData.status).toLowerCase() === "full" || String(modelData.status).toLowerCase() === "not-charging")) {
-										return true;
-									}
-									if (modelData.icon && String(modelData.icon).toLowerCase().indexOf("full") !== -1 && !isChargingState) {
-										return true;
-									}
+									if (modelData.key === "MainComputer") return root.mainIsPlugged;
+									if (modelData.percentage === 100 && !isChargingState) return true;
+									if (modelData.state !== undefined && (modelData.state === 4 || modelData.state === 5)) return true;
+									if (modelData.status !== undefined && (String(modelData.status).toLowerCase() === "full" || String(modelData.status).toLowerCase() === "not-charging")) return true;
+									if (modelData.icon && String(modelData.icon).toLowerCase().indexOf("full") !== -1 && !isChargingState) return true;
 									return false;
 								}
 
@@ -765,7 +694,6 @@ PlasmoidItem {
 									implicitWidth: 10
 									implicitHeight: 14
 									Layout.alignment: Qt.AlignVCenter
-									
 									Canvas {
 										anchors.fill: parent
 										onPaint: {
@@ -790,7 +718,6 @@ PlasmoidItem {
 									implicitWidth: 12
 									implicitHeight: 14
 									Layout.alignment: Qt.AlignVCenter
-									
 									Canvas {
 										anchors.fill: parent
 										onPaint: {
@@ -801,14 +728,11 @@ PlasmoidItem {
 											ctx.lineWidth = 1.5;
 											ctx.fillRect(2, 5, 8, 5);
 											ctx.beginPath();
-											ctx.moveTo(4, 5);
-											ctx.lineTo(4, 1);
-											ctx.moveTo(8, 5);
-											ctx.lineTo(8, 1);
+											ctx.moveTo(4, 5); ctx.lineTo(4, 1);
+											ctx.moveTo(8, 5); ctx.lineTo(8, 1);
 											ctx.stroke();
 											ctx.beginPath();
-											ctx.moveTo(6, 10);
-											ctx.lineTo(6, 14);
+											ctx.moveTo(6, 10); ctx.lineTo(6, 14);
 											ctx.stroke();
 										}
 									}
@@ -825,9 +749,7 @@ PlasmoidItem {
 					}
 				}
 
-				Item { 
-					Layout.preferredHeight: Kirigami.Units.smallSpacing 
-				}
+				Item { Layout.preferredHeight: Kirigami.Units.smallSpacing }
 
 				Kirigami.Separator {
 					visible: Plasmoid.configuration.showPowerProfile
@@ -858,17 +780,12 @@ PlasmoidItem {
 
 						RowLayout {
 							Layout.fillWidth: true
-							
 							PlasmaComponents.Label {
 								text: root.sysHasPPD ? i18n("Power Profile") : (root.sysHasTLP ? i18n("Power Profile") + " (TLP)" : i18n("Power Profile") + " ⚠️")
 								font.bold: true
 								color: root.sysHasPPD ? Kirigami.Theme.textColor : Kirigami.Theme.neutralTextColor
 							}
-							
-							Item { 
-								Layout.fillWidth: true 
-							}
-							
+							Item { Layout.fillWidth: true }
 							PlasmaComponents.Label {
 								visible: root.sysHasPPD
 								text: root.powerProfileVal === 0 ? i18n("Power Save") : (root.powerProfileVal === 2 ? i18n("Performance") : i18n("Balanced"))
@@ -881,29 +798,21 @@ PlasmoidItem {
 							Layout.fillWidth: true
 							enabled: root.sysHasPPD
 							opacity: root.sysHasPPD ? 1.0 : 0.5
-							from: 0
-							to: 2
-							stepSize: 1
+							from: 0; to: 2; stepSize: 1
 							value: root.powerProfileVal
 							onMoved: {
 								if (!root.sysHasPPD) return;
 								var cmd = "";
-								if (value === 0) {
-									cmd = "powerprofilesctl set power-saver";
-								} else if (value === 1) {
-									cmd = "powerprofilesctl set balanced";
-								} else {
-									cmd = "powerprofilesctl set performance";
-								}
+								if (value === 0) cmd = "powerprofilesctl set power-saver";
+								else if (value === 1) cmd = "powerprofilesctl set balanced";
+								else cmd = "powerprofilesctl set performance";
 								runCmd(cmd);
 								root.powerProfileVal = value;
 							}
 							Connections {
 								target: root
 								function onPowerProfileValChanged() {
-									if (!profileSlider.pressed) {
-										profileSlider.value = root.powerProfileVal;
-									}
+									if (!profileSlider.pressed) profileSlider.value = root.powerProfileVal;
 								}
 							}
 						}
@@ -911,21 +820,9 @@ PlasmoidItem {
 						RowLayout {
 							Layout.fillWidth: true
 							opacity: root.sysHasPPD ? 1.0 : 0.5
-							Kirigami.Icon {
-								source: "battery-profile-powersave" 
-								implicitWidth: 16
-								implicitHeight: 16
-								opacity: root.powerProfileVal === 0 ? 1.0 : 0.5
-							}
-							Item { 
-								Layout.fillWidth: true 
-							}
-							Kirigami.Icon {
-								source: "battery-profile-performance" 
-								implicitWidth: 16
-								implicitHeight: 16
-								opacity: root.powerProfileVal === 2 ? 1.0 : 0.5
-							}
+							Kirigami.Icon { source: "battery-profile-powersave"; implicitWidth: 16; implicitHeight: 16; opacity: root.powerProfileVal === 0 ? 1.0 : 0.5 }
+							Item { Layout.fillWidth: true }
+							Kirigami.Icon { source: "battery-profile-performance"; implicitWidth: 16; implicitHeight: 16; opacity: root.powerProfileVal === 2 ? 1.0 : 0.5 }
 						}
 					}
 				}
@@ -950,13 +847,7 @@ PlasmoidItem {
 					RowLayout {
 						Layout.fillWidth: true
 						spacing: Kirigami.Units.largeSpacing
-
-						Kirigami.Icon {
-							source: "system-suspend-inhibit"
-							implicitWidth: Kirigami.Units.iconSizes.medium
-							implicitHeight: Kirigami.Units.iconSizes.medium
-						}
-
+						Kirigami.Icon { source: "system-suspend-inhibit"; implicitWidth: Kirigami.Units.iconSizes.medium; implicitHeight: Kirigami.Units.iconSizes.medium }
 						PlasmaComponents.Switch {
 							id: preventSleepSwitch
 							text: root.sysInhibitType > 0 ? i18n("Manually Block Sleep and Screen Lock") : i18n("Manually Block Sleep and Screen Lock") + " ⚠️"
@@ -964,9 +855,8 @@ PlasmoidItem {
 							Layout.fillWidth: true
 							onCheckedChanged: {
 								if (root.sysInhibitType === 0) return;
-								if (checked) {
-									inhibitSource.connectSource(root.inhibitCmd);
-								} else {
+								if (checked) inhibitSource.connectSource(root.inhibitCmd);
+								else {
 									inhibitSource.disconnectSource(root.inhibitCmd);
 									runCmd("pkill -f 'sleep 999999999'");
 								}
@@ -992,8 +882,7 @@ PlasmoidItem {
 
 							Kirigami.Icon {
 								source: modelData.iconName
-								implicitWidth: 16
-								implicitHeight: 16
+								implicitWidth: 16; implicitHeight: 16
 								Layout.alignment: Qt.AlignTop | Qt.AlignLeft
 								Layout.topMargin: 2
 							}
@@ -1001,7 +890,6 @@ PlasmoidItem {
 							ColumnLayout {
 								Layout.fillWidth: true
 								spacing: 0
-								
 								PlasmaComponents.Label {
 									text: modelData.appName
 									font.pixelSize: Kirigami.Theme.defaultFont.pixelSize

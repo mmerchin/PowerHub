@@ -7,11 +7,15 @@
 
   <group name="General">
     <entry name="panelIconWidth" type="Int"><default>50</default></entry>
+    <entry name="panelIconHeight" type="Int"><default>24</default></entry>
     <entry name="panelIconRadius" type="Int"><default>4</default></entry>
     <entry name="panelLeftMargin" type="Int"><default>2</default></entry>
     <entry name="panelRightMargin" type="Int"><default>2</default></entry>
+    
+    <entry name="showPercentage" type="bool"><default>true</default></entry>
     <entry name="useAutoFontSize" type="bool"><default>true</default></entry>
     <entry name="customFontSize" type="Int"><default>13</default></entry>
+    
     <entry name="profileDisplayStyle" type="Int"><default>1</default></entry>
     <entry name="chargingHighlightColor" type="String"><default>#f1c40f</default></entry>
     <entry name="useAutoTextColor" type="bool"><default>true</default></entry>

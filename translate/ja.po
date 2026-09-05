@@ -157,3 +157,13 @@ msgid "Blocking screen lock (%1)"
 msgstr "画面ロックをブロック中 (%1)"
 msgid "KDE Connect"
 msgstr "KDE Connect"
+
+msgid "Height (px):"
+msgstr "高さ (px):"
+
+msgid "Battery Text:"
+msgstr "バッテリーテキスト:"
+
+msgid "Show Percentage Number"
+msgstr "パーセンテージを表示"
+

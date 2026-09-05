@@ -9,9 +9,12 @@ KCMUtils.SimpleKCM {
 	id: root
 
 	property alias cfg_panelIconWidth: iconWidthSpinBox.value
+	property alias cfg_panelIconHeight: iconHeightSpinBox.value
 	property alias cfg_panelIconRadius: iconRadiusSpinBox.value
 	property alias cfg_panelLeftMargin: leftMarginSpinBox.value
 	property alias cfg_panelRightMargin: rightMarginSpinBox.value
+	
+	property alias cfg_showPercentage: showPercentageCheckBox.checked
 	property alias cfg_useAutoFontSize: useAutoFontSize.checked
 	property alias cfg_customFontSize: customFontSize.value
 	
@@ -68,13 +71,15 @@ KCMUtils.SimpleKCM {
 				Layout.fillWidth: true
 				Layout.topMargin: Kirigami.Units.largeSpacing
 
-				QQC2.SpinBox { id: iconWidthSpinBox; Kirigami.FormData.label: i18n("Width (px):"); from: 30; to: 200; stepSize: 1 }
+				QQC2.SpinBox { id: iconWidthSpinBox; Kirigami.FormData.label: i18n("Width (px):"); from: 10; to: 200; stepSize: 1 }
+				QQC2.SpinBox { id: iconHeightSpinBox; Kirigami.FormData.label: i18n("Height (px):"); from: 10; to: 200; stepSize: 1 }
 				QQC2.SpinBox { id: iconRadiusSpinBox; Kirigami.FormData.label: i18n("Corner Radius (px):"); from: 0; to: 50; stepSize: 1 }
 				QQC2.SpinBox { id: leftMarginSpinBox; Kirigami.FormData.label: i18n("Left Margin (px):"); from: 0; to: 30; stepSize: 1 }
 				QQC2.SpinBox { id: rightMarginSpinBox; Kirigami.FormData.label: i18n("Right Margin (px):"); from: 0; to: 30; stepSize: 1 }
 
 				Kirigami.Separator { Kirigami.FormData.isSection: true }
 
+				QQC2.CheckBox { id: showPercentageCheckBox; Kirigami.FormData.label: i18n("Battery Text:"); text: i18n("Show Percentage Number") }
 				QQC2.CheckBox { id: useAutoFontSize; Kirigami.FormData.label: i18n("Font Size:"); text: i18n("Auto Adjust") }
 				QQC2.SpinBox { id: customFontSize; Kirigami.FormData.label: i18n("Manual Size (px):"); from: 10; to: 20; stepSize: 1; enabled: !useAutoFontSize.checked }
 

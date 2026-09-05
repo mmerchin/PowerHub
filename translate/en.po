@@ -157,3 +157,13 @@ msgid "Blocking screen lock (%1)"
 msgstr "Ekran kilidini engelliyor (%1)"
 msgid "KDE Connect"
 msgstr "KDE Connect"
+
+msgid "Height (px):"
+msgstr "Height (px):"
+
+msgid "Battery Text:"
+msgstr "Battery Text:"
+
+msgid "Show Percentage Number"
+msgstr "Show Percentage Number"
+
